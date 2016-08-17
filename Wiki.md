@@ -29,6 +29,8 @@ abootimg --create new-boot.img -f bootimg.cfg -k zImage -r initrd.img
 abootimg --create new-boot.img -f bootimg.cfg -k zImage -r initrd.img -c "bootsize=5744640"
 fastboot boot new-boot.img 
 
+5,ubuntu ent set:
+sudo apt-get install openjdk-7-jdk
 
 
 
