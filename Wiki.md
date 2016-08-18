@@ -16,7 +16,7 @@ dd if=zImage bs=17248 skip=1 | gzip -cd > piggy
 export ARCH=arm
 export CROSS_COMPILE=arm-eabi-
 export PATH=$PATH:'/home/daniel/Desktop/tegra/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8/bin'
-make tegra3_android_defconfig
+make tegra3_android_defconfig  /  make menuconfig
 make -j 16
 
 3,git commit:
