@@ -1,9 +1,3 @@
-wiki
-
-
-
-
-
 1,How to extract sony kernel and obtain symbol?<br />
 
 binwalk zImage<br />
