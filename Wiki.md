@@ -4,7 +4,7 @@ wiki
 
 
 
-1,How to extract sony kernel and obtain symbol?
+1,How to extract sony kernel and obtain symbol?<br />
 
 binwalk zImage
 dd if=zImage bs=17248 skip=1 | gzip -cd > piggy
