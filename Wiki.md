@@ -27,7 +27,6 @@ sudo apt-get install git gnupg flex bison gperf build-essential zip curl libc6-d
 
 6, git clone sub module<br />
 git clone https://......<br />
-git submodule init<br />
-git submodule update<br />
+git submodule update --init --recursive<br />
 
 
