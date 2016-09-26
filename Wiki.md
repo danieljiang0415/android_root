@@ -24,5 +24,22 @@ fastboot boot new-boot.img <br />
 sudo apt-get install openjdk-7-jdk<br />
 sudo apt-get install git gnupg flex bison gperf build-essential zip curl libc6-dev libncurses5-dev:i386 x11proto-core-dev libx11-dev:i386 libreadline6-dev:i386 libgl1-mesa-glx:i386 libgl1-mesa-dev g++-multilib mingw32 tofrodos python-markdown libxml2-utils xsltproc zlib1g-dev:i386
 
+6, extract kallsyms of huawei's rom (extractkall.sh)
+#/bin/bash
+
+unzip $1 -d ./tmp
+cd tmp
+abootimg -x boot.img
+A=`binwalk zImage`
+B=`echo $A | awk 'BEGIN{FS="gzip"}{print $1}' | awk '{print $(NF-1)}'`
+dd if=zImage bs=$B skip=1 | gzip -cd > pigg
+../kallsymsprint pigg > ../kallsyms
+
+cd ..
+rm -rf tmp/
+
+------------------------------------------
+usage: ./extractkall.sh rom'sname
+
 
 
