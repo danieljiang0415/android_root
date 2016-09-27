@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 unzip $1 -d ./tmp
 cd tmp
