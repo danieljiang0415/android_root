@@ -21,6 +21,8 @@ abootimg --create new-boot.img -f bootimg.cfg -k zImage -r initrd.img -c "bootsi
 fastboot boot new-boot.img <br />
 
 5,ubuntu ent set:<br />
+sudo apt-get update<br />
+sudo apt-get dist-upgrade<br />
 sudo apt-get install openjdk-7-jdk<br />
 sudo apt-get install git gnupg flex bison gperf build-essential zip curl libc6-dev libncurses5-dev:i386 x11proto-core-dev libx11-dev:i386 libreadline6-dev:i386 libgl1-mesa-glx:i386 libgl1-mesa-dev g++-multilib mingw32 tofrodos python-markdown libxml2-utils xsltproc zlib1g-dev:i386
 
