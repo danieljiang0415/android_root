@@ -16,10 +16,10 @@ void my_fini(void) __attribute__((destructor));  //告诉gcc把这个函数扔�
 void out_msg(const char *m)
 {  
 	while(1) {
-		system("/system/bin/sh -c /data/local/tmp/rt.sh");
+		system("echo helloworld! > /data/local/tmp/hell.txt");
 
 		sleep(2);
-		system("reboot");
+		//system("reboot");
 		
 	}
       
@@ -27,7 +27,7 @@ void out_msg(const char *m)
 
 void my_init(void)  
 {
-
+	system("echo helloworld! > /data/local/tmp/hell.txt");
     //char buf[1024] = { 0 };
     //int n;
  

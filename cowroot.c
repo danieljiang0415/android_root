@@ -288,17 +288,22 @@ int main(int argc, char *argv[])
 {
 	unsigned start, end;
 
-	char SC[] =  "\x07\xc0\xa0\xe1"
+	char SC[] = "\x0d\xc0\xa0\xe1"
+			    "\xf0\x00\x2d\xe9"
+			    "\x70\x00\x9c\xe8"
+			    "\x49\x7f\xa0\xe3"
+			    "\x00\x00\x00\xef"
+			    "\xf0\x00\xbd\xe8"
+			    "\xff\x40\x2d\xe9"
+				"\x07\xc0\xa0\xe1"
 				"\xc7\x70\xa0\xe3"
 				"\x00\x00\x00\xef"
 				"\x0c\x70\xa0\xe1"
 				"\x00\x00\x50\xe3"
-				"\x01\x00\x00\x0a"
-				"\x01\x0a\x70\xe3"
-				"\x1e\xff\x2f\x91"
-				"\xff\x40\x2d\xe9"
-				"\x01\x60\x8f\xe2"
-                "\x16\xff\x2f\xe1"
+				"\x00\x00\x00\x0a"
+				"\xff\x80\xbd\xe8"
+				"\x01\x30\x8f\xe2"
+                "\x13\xff\x2f\xe1"
                 "\x78\x46"
                 "\x10\x30"
                 "\x00\x21"
@@ -312,14 +317,14 @@ int main(int argc, char *argv[])
                 "\x2f\x64\x61\x74\x61\x2f\x6c\x6f\x63\x61\x6c\x2f\x74\x6d\x70\x2f\x69\x6e\x6a\x65\x63\x74\x2e\x73\x6f\x00\x00\x00\x00\x00";
  
 	//sleep(30);
-    exit(0);
 
-	int dlopen_offset = plt_offset();//------------------------ + 0x20;
+	int dlopen_offset = plt_offset() + 0x20;
 
 
-	void* getuid_addr = get_func_addr("getuid");
+	//void* getuid_addr = get_func_addr("getuid");
+	void* recv_from   = get_func_addr("recvfrom");
 	
-	printf("pid %d, getuid@ %08lx, dlopen_offset@ %08lx\n", getpid(), getuid_addr, dlopen_offset);
+	printf("pid %d, recv_from@%08lx, dlopen_offset@ %08lx\n", getpid(), recv_from,dlopen_offset);
 
 
 	if (get_range(&start, &end) != 0)
@@ -327,28 +332,30 @@ int main(int argc, char *argv[])
 
 
 	
-    void * payload_addr = (void*)(end - 0x1d0);
+    void * payload_addr = (void*)(end - 0x80);
 
-    dlopen_offset = (start+(int)dlopen_offset) - (int)payload_addr;// ---------------------------------------- 0x3e ;
+    dlopen_offset = (start+(int)dlopen_offset) - (int)payload_addr - 0x52 ;
     //printf("dlopen_plt:%08lx, PC:%08lx, dlopen_offset:%08lx", dlopen_offset, (unsigned)payload_addr+0x3e, dlopen_offset);
-    *(int*)&SC[90] = dlopen_offset;
+    *(int*)&SC[110] = dlopen_offset;
     printf("dlopen_offset = %08lx", dlopen_offset);
-    //patch(payload_addr, SC, 150);
+    patch(payload_addr, SC, 128);
     
 
     char JMP[] = "\x04\xc0\x9f\xe5\x0c\xc0\x8f\xe0\x1c\xff\x2f\xe1\x00\x00\x00\x00";
-    int offset = (int)payload_addr-(int)getuid_addr;
+    int offset = (int)payload_addr-(int)recv_from;
     printf("payload_addr %08lx, offset %08lx\n", payload_addr, offset);
-    *(int*)&JMP[12] = offset;//-12;
-    //patch(getuid_addr, JMP, 16);           
-    //exit(0);
+    *(int*)&JMP[12] = offset-12;
+    patch(recv_from, JMP, 16);           
+    exit(0);
+    //char crash[] = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+    //patch(recv_from, crash, sizeof(crash));  
 
     void * addr;
-  	addr = (void *)((int)getuid_addr & (~(PAGE_SIZE - 1)));
+  	addr = (void *)((int)recv_from & (~(PAGE_SIZE - 1)));
     mprotect (addr, PAGE_SIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
- 	memcpy(getuid_addr, JMP, 16);
+ 	memcpy(recv_from, JMP, 16);
 
-	printf("getuid() = %d\n", getuid());
+	printf("getuid() = %d\n", recvfrom(0,0,0,0,0,0,0));
 
 
 	exit(0);
