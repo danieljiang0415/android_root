@@ -27,13 +27,15 @@ _start:
     pop    {r0-r7, lr}
 //-----------------------recvfrome-------------------------------
 org_fun:
-    mov    r12, r7
-    ldr    r7, =#0x107
+    mov    r12, sp
+    stmfd  sp!, {r4-r7}
+    ldmia  r12, {r4-r6}
+    mov    r7, #0x124
     svc    0
-    mov    r7, r12
-    cmn    r0, #0x1000
+    ldmfd  sp!, {r4-r7}
+    cmn    r0,  #0x1000
     bxls   lr
     rsb    r0, r0, #0
     b      org_fun              //-----j__set_errno.
-.ascii "/system/bin/adb\x0\x0\x0\x0\x0\x0\x0\x0\x0"
+.ascii "/system/bin/adb\x0"
 .ascii "\x0\x0\x0\x0"//------------------dlopen offset-------------
