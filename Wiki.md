@@ -32,3 +32,34 @@ git clone https://......<br />
 git submodule update --init --recursive<br />
 
 
+
+##build android system<br />
+#!/bin/sh<br />
+
+#build kernel<br />
+
+#https://android.googlesource.com/kernel/msm/+/android-msm-bullhead-3.10-marshmallow-dr/./build.config<br />
+Kernel_Dir=~/Desktop/msm<br />
+cd $Kernel_Dir<br />
+export PATH=$(pwd)/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/bin:$PATH<br />
+export ARCH=arm64<br />
+export CROSS_COMPILE=aarch64-linux-android-<br />
+make bullhead_defconfig<br />
+make -j4<br />
+export TARGET_PREBUILT_KERNEL=$Kernel_Dir/arch/arm64/boot/Image.gz-dtb<br />
+
+#<br />
+#build system<br />
+#<br />
+Build_Dir=~/Desktop/WORKING_DIRECTORY<br />
+cd $Build_Dir<br />
+source build/envsetup.sh<br />
+lunch aosp_bullhead-userdebug<br />
+make -j4<br />
+
+
+#<br />
+#flash bootimg into device<br />
+#<br />
+# sudo fastboot flash boot boot.img<br />
+
