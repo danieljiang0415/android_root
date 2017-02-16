@@ -63,3 +63,7 @@ make -j4<br />
 #<br />
 # sudo fastboot flash boot boot.img<br />
 
+
+#强制check out 某个 分支
+git reset --hard f97f123
+git checkout fe89f19
