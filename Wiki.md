@@ -25,8 +25,8 @@ System.map<br />
 iii,<br />
 sudo apt install abootimg<br />
 abootimg -x boot.img<br />
-abootimg --create bullhead-boot.img -f bootimg.cfg -k zImage -r initrd.img -c "bootsize=5744640"<br />
-fastboot boot new-boot.img <br />
+abootimg --create bullhead-boot.img -f bootimg.cfg -k Image.gz-dtb -r initrd.img -c "bootsize=????"<br />
+fastboot boot bullhead-boot.img <br />
 
 #Build Environment<br />
 3#,ubuntu develop env set:<br />
