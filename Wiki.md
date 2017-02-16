@@ -61,7 +61,7 @@ make -j4<br />
 sudo fastboot flash boot boot.img<br />
 
 
-#Git
-git reset --hard f97f123
-git checkout fe89f19
+#Git<br />
+git reset --hard f97f123<br />
+git checkout fe89f19<br />
 git submodule update --init --recursive<br />
