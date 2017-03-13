@@ -68,3 +68,6 @@ git submodule update --init --recursive<br />
 
 #cp to remote
 scp -r ~/Downloads/security/ root@1.1.1.1:/home/
+
+#android UI
+http://www.gcssloop.com
