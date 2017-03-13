@@ -71,3 +71,4 @@ scp -r ~/Downloads/security/ root@1.1.1.1:/home/
 
 #android UI
 http://www.gcssloop.com
+https://www.zhihu.com/question/41101031
