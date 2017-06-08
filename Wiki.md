@@ -58,6 +58,11 @@ make -j4<br />
 
 
 #Flash system into device<br />
+https://developers.google.com/android/images
+adb reboot bootloader
+fastboot flashing unlock
+flash-all
+
 sudo fastboot flash boot boot.img<br />
 
 
