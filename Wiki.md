@@ -81,3 +81,5 @@ https://www.zhihu.com/question/41101031
 #./tcpdump -i any -p -s 0 -w /sdcard/capture.pcap
 
 <script>alert(0)</script>
+https://groups.google.com/forum/#!forum/android-building
+android-7.1.2_r0.4 | android-msm-angler-3.10-nougat-mr2    | kernel/msm    | Nexus 6P
