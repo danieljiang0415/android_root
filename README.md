@@ -1,14 +1,7 @@
-# cowroot
-Universal Android root tool based on CVE-2016-5195. Watch this space.
+stage1---> 替换系统文件如adb-->检查是否替换成功!
 
-### Current Status:
-  - Only works on 32-bit devices
-  - Only able to get root on Cyanogenmod devices, when both getuid() and geteuid() are patched (i.e. bypasses su checks).
+stage2---> 修改libc.so, 调用dlopen加载adb, 等待获取root权限的进程!
 
-I've ported https://gist.github.com/scumjr/17d91f20f73157c722ba2aea702985d2 to Android arm32.
+stage3---> 修改init,patch seliux!
 
-As a proof-of-concept, it patches getuid() and geteuid() in libc to always return 0. Unless there is a su binary like on Cyanogenmod devices, this doesn't do anything useful. vDSO is not patched because many Android kernels do not have it enabled.
-
-In order to get "real" root, I'm going to have to use a different patching strategy.
-
-If I patch a function that is used by an already-privileged process, I should be able to get full control.
+stage4---> stage2--->获取root shell--->su --daemon!
